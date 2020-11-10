@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: avancadevmsb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: avancadevmsb
+  template:
+    metadata:
+      labels:
+        app: avancadevmsb
+    spec:
+      containers:
+          - name: avancadevmsb
+            image: agftech/microservice-avancadev-docker-msb:latest
+            ports:
+              - containerPort: 9091
+
+            volumeMounts:
+            - name: avancadevmsb-conf
+              subPath: .env
+              mountPath: /go/src/avancadevmsb/.env
+
+            env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                    name: avancadevmsb-secret
+                    key: RABBITMQ_DEFAULT_USER
+            - name: RABBITMQ_DEFAULT_PASS
+            
+      volumes:
+          - name: avancadevmsb-conf
+            configMap:
+              name: avancadevmsb-conf
+              items:
+                - key: env
+                  path: .env
